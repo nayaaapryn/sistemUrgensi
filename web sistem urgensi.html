@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Prioritas Pasien</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffe6f2;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #d147a3;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            color: #d147a3;
+        }
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #d147a3;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #d147a3;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #b33688;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #f2a2c2;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #ffb3d1;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #ffe6f2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Daftar Prioritas Pasien</h1>
+    <form id="patientForm">
+        <label for="id">ID Pasien:</label>
+        <input type="number" id="id" required>
+
+        <label for="arrivalTime">Waktu Kedatangan (dalam menit):</label>
+        <input type="number" id="arrivalTime" required>
+
+        <label for="illness">Penyakit:</label>
+        <input type="text" id="illness" required>
+
+        <button type="button" onclick="addPatient()">Tambahkan Pasien</button>
+    </form>
+
+    <h2>Daftar Pasien Berdasarkan Urgensi</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID Pasien</th>
+                <th>Waktu Kedatangan</th>
+                <th>Penyakit</th>
+                <th>Kategori Urgensi</th>
+            </tr>
+        </thead>
+        <tbody id="patientList"></tbody>
+    </table>
+</div>
+
+<script>
+    class Patient {
+        constructor(id, arrivalTime, illness, urgency) {
+            this.id = id;
+            this.arrivalTime = arrivalTime;
+            this.illness = illness;
+            this.urgency = urgency;
+        }
+    }
+
+    const urgencyMap = {
+        "Flu": 1, "Sakit Kepala": 1, "Demam": 1, "Batuk": 1, "Pilek": 1,
+        "Demam Berdarah": 2, "Pneumonia": 2, "Asma": 2, "Infeksi Saluran Pernapasan": 2, "Radang Tenggorokan": 2,
+        "Serangan Jantung": 3, "Stroke": 3, "Gagal Ginjal": 3, "Kanker": 3, "Diabetes": 3
+    };
+
+    const patients = [];
+
+    function determineUrgency(illness) {
+        return urgencyMap[illness] || 0;
+    }
+
+    function addPatient() {
+        const id = document.getElementById("id").value;
+        const arrivalTime = document.getElementById("arrivalTime").value;
+        const illness = document.getElementById("illness").value;
+
+        const urgency = determineUrgency(illness);
+
+        if (urgency === 0) {
+            alert("Penyakit \"" + illness + "\" tidak dikenali. Silakan masukkan nama penyakit yang valid.");
+            return;
+        }
+
+        const newPatient = new Patient(id, arrivalTime, illness, urgency);
+        patients.push(newPatient);
+        patients.sort((a, b) => {
+            if (a.urgency === b.urgency) {
+                return a.arrivalTime - b.arrivalTime;
+            }
+            return b.urgency - a.urgency;
+        });
+
+        displayPatients();
+    }
+
+    function displayPatients() {
+        const patientList = document.getElementById("patientList");
+        patientList.innerHTML = "";
+
+        patients.forEach(patient => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${patient.id}</td>
+                <td>${patient.arrivalTime}</td>
+                <td>${patient.illness}</td>
+                <td>${patient.urgency}</td>
+            `;
+            patientList.appendChild(row);
+        });
+    }
+</script>
+
+</body>
+</html>
